@@ -60,6 +60,7 @@ function generate_isoSPI(;
 
     append!(wave, zeros(pad_len))
     append!(wave, generate_cs_falling_edge(n_half_long))
+    append!(wave, zeros(pad_len))
 
     for b in bits
         append!(

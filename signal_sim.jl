@@ -47,15 +47,18 @@ filtered_signal = apply_rc_lowpass(
 # Plot results
 const dt = 1 / sim_fs
 time = (0:lastindex(original_signal)-1) .* dt
-p = plot(xlabel="time (µs)", ylabel="voltage")
+p = plot(xlabel="time (µs)", ylabel="voltage", dpi=600, size=(3600, 1200))
 plot!(p, time .* 1e6, original_signal, label="Input signal")
 plot!(p, time .* 1e6, filtered_signal, label="Output signal")
 
 const t_per_bit = 1 / baud_rate
+const line_delay_us = 1
 title!(p, @sprintf("%.2e baud, R=%.2e Ω, C=%.2e F", baud_rate, R, C))
-for k in 0:num_bits # add lines to show bit periods
-    vline!(p, [k * t_per_bit * 1e6], color=:black, alpha=0.2, label=false)
+for k in 1:num_bits # add lines to show bit periods
+    vline!(p, [k * t_per_bit * 1e6 + line_delay_us], color=:black, alpha=0.3, label=false)
 end
+
+savefig("plot.png")
 
 # Hold the plot open when running julia from the terminal
 gui()
