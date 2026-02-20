@@ -1,5 +1,5 @@
 #=
-# thermistor_plot.jl
+# thermistor_model.jl
 # using data sheet values to understand behavior of our battery thermistors
 # Author: Irving Wang (irvingw@purdue.edu)
 =#
@@ -8,7 +8,7 @@ using Plots
 
 # Part number: B57861S0103-A039
 # https://www.tdk-electronics.tdk.com/inf/50/db/ntc/NTC_Mini_sensors_S861.pdf
-const R25 = 1e3
+const R25 = 10_000
 const B25_100 = 3988.0
 const T25K = 25 + 273.15
 
@@ -37,12 +37,12 @@ beta_model(Tc) = R25 * exp(B25_100 * (1.0 / (Tc + 273.15) - 1.0 / T25K))
 T_C_dense = collect(range(minimum(T_C), maximum(T_C), length=1000))
 R_beta = beta_model.(T_C_dense)
 
-p = plot(xlabel="Temperature (°C)", ylabel="Resistance (Ω)", dpi=600)
+p = plot(xlabel="Temperature (°C)", ylabel="Resistance (Ω)", yscale=:log10, dpi=600)
 title!(p, "B57861S0103A039\n Resistance vs Temperature (R25=10k, B=3988K)")
 plot!(T_C, RT, marker=:circle, label="Derived from datasheet")
 plot!(T_C_dense, R_beta; lw=2, label="Beta model")
 
 savefig("plot.png")
 
-# gui()
-# readline()
+gui()
+readline()
