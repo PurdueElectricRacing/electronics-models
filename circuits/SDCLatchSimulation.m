@@ -1,3 +1,8 @@
+%
+% SDCLatchSimulation.m
+% Author: Dru Reed (reed502@purdue.edu)
+%
+
 %% SDC Latch Simulation
 % Overlay: RC1 -> Schmitt, RC2 -> PRESET_n (active-low), Flip-Flop Q
 
@@ -23,7 +28,7 @@ Vth_hi1 = 2.16; % rising threshold
 Vth_lo1 = 1.41; % falling threshold
 
 clk01 = schmittTrigger(v_rc1, Vth_hi1, Vth_lo1);
-clk01 = 1 - clk01;  %inverting Schmitt Trigger                              
+clk01 = 1 - clk01;  %inverting Schmitt Trigger
 v_clk = Vlogic * clk01;
 
 
@@ -73,7 +78,7 @@ p = yline(Vpreset_th, ':', 'Preset Threshold', 'LineWidth', 2);
 s.FontSize = 16;
 p.FontSize = 16;
 
-%% Helper Functions 
+%% Helper Functions
 
 % Schmitt Trigger: y latches high when x>=Vhi, low when x<=Vlo
 function y = schmittTrigger(x, Vhi, Vlo)
