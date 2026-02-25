@@ -10,3 +10,9 @@ SDC Latch when Preset RC Time constant is too small:
 
 Thermistor modeling:
 ![thermistor_plot](figures/thermistor_plot.png)
+
+LV battery sizing:
+![per26_lv_loads](figures/per26_lv_loads.png)
+- Runtime: 46.00 minute
+- Sustained Total Current: 20.92 A
+- Endurance factor of safety: 1.71

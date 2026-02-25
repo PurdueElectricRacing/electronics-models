@@ -5,6 +5,8 @@
 =#
 
 using Unitful
+using Plots
+using Printf
 
 # Michigan 2025 Endurance time:
 const endurance_time = (1617 / 60)u"minute"
@@ -16,14 +18,13 @@ const RS50_voltage = 3.6u"V"
 const RS50_ACIR = 4u"mΩ" # @ 1kHz
 
 # Battery parameters
-const p_count = 3
+const p_count = 4
 const s_count = 7
 
 # Find pack constants
 const depth_of_charge_coeff = 0.90 # usable capacity
 const end_of_life_coeff = 0.90 # aging effects
-batt_capacity = RS50_capacity * p_count *
-                depth_of_charge_coeff * end_of_life_coeff
+batt_capacity = RS50_capacity * p_count * depth_of_charge_coeff * end_of_life_coeff
 batt_voltage = RS50_voltage * s_count
 batt_energy = batt_capacity * batt_voltage
 batt_internal_R = (s_count * RS50_ACIR) / p_count
@@ -53,8 +54,13 @@ const pump_current_24V = 3u"A"
 const num_pumps = 2
 pumps_pack_current = pump_current_24V * num_pumps * avg_pump_duty_cycle
 
+# AMK inverter loading
+const avg_inverter_current_24V = 0.45u"A"  # benchtop measurement
+const num_inverters = 4
+inverters_pack_current = avg_inverter_current_24V * num_inverters
+
 # Add up active loads
-active_pack_current = boards_pack_current + fans_pack_current + pumps_pack_current
+active_pack_current = boards_pack_current + fans_pack_current + pumps_pack_current + inverters_pack_current
 
 # Add loss due to internal resistance @ total_pack_current
 internal_power_loss = active_pack_current^2 * batt_internal_R
@@ -63,9 +69,27 @@ total_pack_current = active_pack_current + internal_power_loss_equiv_current
 
 # Calc runtime
 runtime = uconvert(u"minute", batt_capacity / total_pack_current)
-println("Runtime: ", runtime)
-println("Sustained Total Current ", total_pack_current)
+@printf("Runtime: %.2f\n", runtime)
+@printf("Sustained Total Current: %.2f\n", total_pack_current)
 
 # Endurance factor of safety
 endurance_fos = runtime / endurance_time
-println("Endurance factor of safety: ", endurance_fos)
+@printf("Endurance factor of safety: %.2f\n", endurance_fos)
+
+# Plot the load pie chart
+labels = ["Boards", "Fans", "Pumps", "Inverter LV", "Internal Loss (equiv)"]
+values = [
+    ustrip(u"A", boards_pack_current),
+    ustrip(u"A", fans_pack_current),
+    ustrip(u"A", pumps_pack_current),
+    ustrip(u"A", inverters_pack_current),
+    ustrip(u"A", internal_power_loss_equiv_current)
+]
+# @show labels, values
+p = pie(labels, values, dpi=300)
+title!(p, @sprintf("Projected PER26 LV Current Loads @%ds%dp", s_count, p_count))
+
+savefig("figures/per26_lv_loads.png")
+
+gui()
+readline()
