@@ -43,16 +43,25 @@ boards_power_from_pack = board_power_5V / LM53603_efficiency_coeff
 boards_pack_current = boards_power_from_pack / batt_voltage
 
 # Fan loading
+const fan_currents_24V = [
+    0, 0.11, 0.154, 0.2, 0.26, 0.325,     # 0 - 25% duty
+    0.404, 0.5, 0.606, 0.733, 0.891,      # 30 - 50% duty
+    1.035, 1.226, 1.41, 1.58, 1.806,      # 55 - 75% duty
+    2.02, 2.225, 2.47, 2.515, 2.52        # 80 - 100% duty
+] # benchtop measurement off a 24V supply
+# scale the power load to the battery voltage
+fan_currents = fan_currents_24V .* (24u"V" / batt_voltage)
 const avg_fan_duty_cycle = 0.70
-const fan_current_24V = 2u"A"
+idx = round(Int, avg_fan_duty_cycle * 100 / 5) + 1
+scaled_fan_current = fan_currents[idx] * u"A"
 const num_fans = 9
-fans_pack_current = fan_current_24V * num_fans * avg_fan_duty_cycle
+fans_pack_current = scaled_fan_current * num_fans
 
 # Pump loading
 const avg_pump_duty_cycle = 1.00
-const pump_current_24V = 3u"A"
+const pump_current_25V = 3u"A"
 const num_pumps = 2
-pumps_pack_current = pump_current_24V * num_pumps * avg_pump_duty_cycle
+pumps_pack_current = pump_current_25V * num_pumps * avg_pump_duty_cycle
 
 # AMK inverter loading
 const avg_inverter_current_24V = 0.45u"A"  # benchtop measurement
