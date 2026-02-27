@@ -8,8 +8,10 @@ using Unitful
 using Plots
 using Printf
 
-# Michigan 2025 Endurance time:
-const endurance_time = (1617 / 60)u"minute"
+# Michigan 2025 Endurance times
+const endurance_run_time = (1617 / 60)u"minute"
+const endurance_wait_time = 5u"minute"
+total_endurance_time = endurance_run_time + endurance_wait_time
 
 # Cell parameters
 # https://cdn.shopify.com/s/files/1/0481/9678/0183/files/INR21700-RS50_2025.1.2.pdf
@@ -48,18 +50,18 @@ const fan_currents_24V = [
     0.404, 0.5, 0.606, 0.733, 0.891,      # 30 - 50% duty
     1.035, 1.226, 1.41, 1.58, 1.806,      # 55 - 75% duty
     2.02, 2.225, 2.47, 2.515, 2.52        # 80 - 100% duty
-] # benchtop measurement off a 24V supply
+] # benchtop measurement off a 24V supply (fans pairs tied together)
 # scale the power load to the battery voltage
 fan_currents = fan_currents_24V .* (24u"V" / batt_voltage)
 const avg_fan_duty_cycle = 0.70
 idx = round(Int, avg_fan_duty_cycle * 100 / 5) + 1
 scaled_fan_current = fan_currents[idx] * u"A"
-const num_fans = 9
+const num_fans = 5
 fans_pack_current = scaled_fan_current * num_fans
 
 # Pump loading
 const avg_pump_duty_cycle = 1.00
-const pump_current_25V = 3u"A"
+const pump_current_25V = 3u"A" # todo: characterize pumps
 const num_pumps = 2
 pumps_pack_current = pump_current_25V * num_pumps * avg_pump_duty_cycle
 
@@ -82,7 +84,7 @@ runtime = uconvert(u"minute", batt_capacity / total_pack_current)
 @printf("Sustained Total Current: %.2f\n", total_pack_current)
 
 # Endurance factor of safety
-endurance_fos = runtime / endurance_time
+endurance_fos = runtime / total_endurance_time
 @printf("Endurance factor of safety: %.2f\n", endurance_fos)
 
 # Plot the load pie chart
