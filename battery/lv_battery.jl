@@ -38,24 +38,27 @@ const num_boards = 8
 lv_boards_power = single_board_power * num_boards
 lv_boards_power = lv_boards_power / LM53603_efficiency_coeff # account for buck losses
 
-# Fan loading
+# Fans
 const avg_fan_duty_cycle = 0.80
 const num_fans = 5
 fans_pack_power = duty2watts_40_9CRA(avg_fan_duty_cycle) * num_fans
 
-# Pump loading
+# Pumps
 const avg_pump_duty_cycle = 1.00
 const pump_power_25V = 3u"A" * 25u"V" # todo: characterize pumps
 const num_pumps = 2
 pumps_pack_power = pump_power_25V * num_pumps * avg_pump_duty_cycle
 
-# AMK inverter loading
+# AMK inverter LV
 const avg_inverter_power_24V = 0.45u"A" * 24u"V" # benchtop measurement
 const num_inverters = 4
 inverters_pack_power = avg_inverter_power_24V * num_inverters
 
+# Bullet Radio
+const bullet_radio_power = 0.1u"A" * 24u"V" # benchtop measurement
+
 # Add up active loads
-total_active_power = lv_boards_power + fans_pack_power + pumps_pack_power + inverters_pack_power
+total_active_power = lv_boards_power + fans_pack_power + pumps_pack_power + inverters_pack_power + bullet_radio_power
 
 # Add loss due to internal resistance @ nominal voltage
 # I_nominal = P_active / V_nominal
@@ -76,12 +79,13 @@ endurance_fos = runtime / total_endurance_time
 @printf("Endurance factor of safety: %.2f\n", endurance_fos)
 
 # Plot the load pie chart
-labels = ["Boards", "Fans", "Pumps", "Inverter LV", "Internal Loss"]
+labels = ["Boards", "Fans", "Pumps", "Inverter LV", "Bullet Radio", "Internal Loss"]
 values = [
     ustrip(u"W", lv_boards_power),
     ustrip(u"W", fans_pack_power),
     ustrip(u"W", pumps_pack_power),
     ustrip(u"W", inverters_pack_power),
+    ustrip(u"W", bullet_radio_power),
     ustrip(u"W", internal_power_loss)
 ]
 # @show labels, values
