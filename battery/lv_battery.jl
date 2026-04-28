@@ -88,9 +88,13 @@ values = [
     ustrip(u"W", bullet_radio_power),
     ustrip(u"W", internal_power_loss)
 ]
-# @show labels, values
-p = pie(labels, values, dpi=300)
-title!(p, @sprintf("Projected PER26 LV Power Loads @%ds%dp", s_count, p_count))
+percentages = values ./ sum(values) .* 100
+labels_with_pct = [
+    @sprintf("%s (%.1f%%)", labels[i], percentages[i])
+    for i in eachindex(labels)
+]
+p = pie(labels_with_pct, values, dpi=300)
+title!(p, @sprintf("PER26 LV Power Loads @%ds%dp", s_count, p_count))
 
 savefig("figures/per26_lv_loads.png")
 
