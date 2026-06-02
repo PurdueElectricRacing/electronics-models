@@ -28,3 +28,6 @@ Thermistor modeling:
 
 Oil temp sensor analysis:
 ![oil temp error](figures/oil_temp_error.png)
+
+Shockpot sensor analysis:
+![shock pot error](figures/shock_pot_error.png)
